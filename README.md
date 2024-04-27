@@ -9,7 +9,7 @@
 值得注意的是使用CubeProgrammer烧录时自动生成的二进制文件存储路径可能不准确，而且手动配置时会自动添加后缀。另外STM32MP157F-DK2实测供电至少为5V 2A才能点亮屏幕。  
 烧录好STM32MP1 OpenSTLinux Starter Package并安装好SDK后，我们就可以开始编写第一个程序啦！  
 ### 1.2 为开发板编写第一个Hello World程序  
-仍然参考上文所述的ST官方教程，同时参考了这篇CSDN笔记[STM32MP157开发笔记 ](https://mculover666.blog.csdn.net/article/details/121952359?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-2-121952359-blog-121969843.235%5Ev43%5Epc_blog_bottom_relevance_base5&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-2-121952359-blog-121969843.235%5Ev43%5Epc_blog_bottom_relevance_base5&utm_relevant_index=5) 来连接开发板串口进行操作。  
+仍然参考上文所述的ST官方教程，同时参考了这篇CSDN笔记[STM32MP157开发笔记 ](https://mculover666.blog.csdn.net/article/details/121952359?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-2-121952359-blog-121969843.235%5Ev43%5Epc_blog_bottom_relevance_base5&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-2-121952359-blog-121969843.235%5Ev43%5Epc_blog_bottom_relevance_base5&utm_relevant_index=5) 使用```minicom -D /dev/ttyACM0```命令来连接开发板串口进行操作。  
 我们按照教程创建并编写一个.c文件及其makefile文件，编译完成后通过这段命令 ```scp gtk_hello_world root@<board ip address>:/usr/local``` 将可执行文件推到开发板上，然后通过串口操作开发板运行这一程序，成功在开发板上执行了这个Hello World程序。  
 
 ### 1.3 在Ubuntu上接入热成像模块  
