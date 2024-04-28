@@ -8,14 +8,22 @@
 同时直接使用了参加st线下buidroot活动时获得的其官方配置好的虚拟机，Ubuntu版本为22.04。  
 值得注意的是使用CubeProgrammer烧录时自动生成的二进制文件存储路径可能不准确，而且手动配置时会自动添加后缀。另外STM32MP157F-DK2实测供电至少为5V 2A才能点亮屏幕。  
 烧录好STM32MP1 OpenSTLinux Starter Package并安装好SDK后，我们就可以开始编写第一个程序啦！  
+
 ### 1.2 为开发板编写第一个Hello World程序  
 仍然参考上文所述的ST官方教程，同时参考了这篇CSDN笔记[STM32MP157开发笔记 ](https://mculover666.blog.csdn.net/article/details/121952359?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-2-121952359-blog-121969843.235%5Ev43%5Epc_blog_bottom_relevance_base5&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-2-121952359-blog-121969843.235%5Ev43%5Epc_blog_bottom_relevance_base5&utm_relevant_index=5) 使用```minicom -D /dev/ttyACM0```命令来连接开发板串口进行操作。  
 我们按照教程创建并编写一个.c文件及其makefile文件，编译完成后通过这段命令 ```scp gtk_hello_world root@<board ip address>:/usr/local``` 将可执行文件推到开发板上，然后通过串口操作开发板运行这一程序，成功在开发板上执行了这个Hello World程序。  
 
 ### 1.3 在Ubuntu上接入热成像模块  
-这里经过一番折腾，终于用以下命令实现了实时采集热成像画面：  
+这里用以下命令实现了在Ubuntu上实时采集热成像画面：  
 ```
 ffmpeg -f v4l2 -s 240x320 -r 25 -vcodec mjpeg -i /dev/video1 -b:v 8000k -an -f avi - | ffplay -f avi -
 ``` 
-<img width="1280" alt="b8eccb8ee96b8c529203ed0382b348e" src="https://github.com/LegionMay/InfraredThermalImagingDriverAssist/assets/110379545/faec65d4-2e47-4bcd-a5f9-2a2573ada848">
+<img width="1280" alt="b8eccb8ee96b8c529203ed0382b348e" src="https://github.com/LegionMay/InfraredThermalImagingDriverAssist/assets/110379545/faec65d4-2e47-4bcd-a5f9-2a2573ada848">  
+
+## 2 迈出第二步
+### 2.1 通过Ubuntu交叉编译为开发板安装OpenCV库并编写测试程序  
+参考[OpenCV4在Arm开发板的编译和集成](https://blog.csdn.net/xiaopang_love_study/article/details/121617995)编译好后把opencv_install文件夹推送到开发板上
+
+
+
 
