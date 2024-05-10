@@ -11,7 +11,7 @@
 
 ### 1.2 为开发板编写第一个Hello World程序  
 仍然参考上文所述的ST官方教程，同时参考了这篇CSDN笔记[STM32MP157开发笔记 ](https://mculover666.blog.csdn.net/article/details/121952359?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-2-121952359-blog-121969843.235%5Ev43%5Epc_blog_bottom_relevance_base5&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-2-121952359-blog-121969843.235%5Ev43%5Epc_blog_bottom_relevance_base5&utm_relevant_index=5) 使用```minicom -D /dev/ttyACM0```命令来连接开发板串口进行操作。  
-我们按照教程创建并编写一个.c文件及其makefile文件，编译完成后通过这段命令 ```scp gtk_hello_world root@<board ip address>:~/usr/local``` 将可执行文件推到开发板上，然后通过串口操作开发板运行这一程序，成功在开发板上执行了这个Hello World程序。  
+我们按照教程创建并编写一个.c文件及其makefile文件，编译完成后通过这段命令 ```scp gtk_hello_world root@<board ip address>:~/usr/local``` 将可执行文件推到开发板上（开发板与PC需要先联网，如果使用usb网卡注意连接主机而非虚拟机），然后通过串口操作开发板运行这一程序，成功在开发板上执行了这个Hello World程序。  
 
 ### 1.3 在Ubuntu上接入热成像模块  
 这里用以下命令实现了在Ubuntu上实时采集热成像画面：  
