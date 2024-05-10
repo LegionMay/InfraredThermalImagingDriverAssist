@@ -27,6 +27,7 @@ ffmpeg -f v4l2 -s 240x320 -r 25 -vcodec mjpeg -i /dev/video1 -b:v 8000k -an -f a
 通过这段命令拍摄一段热成像画面进行测试（需要先安装ffmpeg）：  
 ```ffmpeg -f v4l2 -s 240x320 -r 25 -vcodec mjpeg -i /dev/video0 -b:v 8000k -an output.avi```  
 安装mplayer```apt install mpv```,用它打开刚才拍摄的内容```mpv output.avi```  
+把它们结合起来，便实现了开发板实时采集热成像画面```ffmpeg -f v4l2 -s 320x240 -r 25 -vcodec mjpeg -i /dev/video0 -b:v 8000k -an -f avi pipe:1 | mpv -``` 
 
 
 
