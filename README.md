@@ -14,7 +14,7 @@
 开发板与PC需要先联网，如果使用usb网卡注意连接主机而非虚拟机。由于这一平台只有一个网口，每次连接主机后需要设置开发板IP如 ```ifconfig end0 192.168.5.9```,而连接到外网后又要重新配置IP如```udhcpc -i end0``` 否则无法正常建立连接。     
 我们按照教程创建并编写一个.c文件及其makefile文件，编译完成后通过这段命令 ```scp gtk_hello_world root@<board ip address>:~/usr/local``` 将可执行文件推到开发板上（，然后通过串口操作开发板运行这一程序，成功在开发板上执行了这个Hello World程序。  
 
-### 1.3 在Ubuntu上接入热成像模块  
+### 1.3 在Ubuntu上接入热成像模块进行测试  
 这里用以下命令实现了在Ubuntu上实时采集热成像画面：  
 ```
 ffmpeg -f v4l2 -s 240x320 -r 25 -vcodec mjpeg -i /dev/video1 -b:v 8000k -an -f avi - | ffplay -f avi -
@@ -22,8 +22,8 @@ ffmpeg -f v4l2 -s 240x320 -r 25 -vcodec mjpeg -i /dev/video1 -b:v 8000k -an -f a
 <img width="1280" alt="b8eccb8ee96b8c529203ed0382b348e" src="https://github.com/LegionMay/InfraredThermalImagingDriverAssist/assets/110379545/faec65d4-2e47-4bcd-a5f9-2a2573ada848">  
 
 ## 2 迈出第二步
-### 2.1 通过Ubuntu交叉编译为开发板安装OpenCV库并编写测试程序  
-参考[OpenCV4在Arm开发板的编译和集成](https://blog.csdn.net/xiaopang_love_study/article/details/121617995)编译好后把opencv_install文件夹推送到开发板上
+### 2.1 为开发板安装X-LINUX_AI软件包并编写测试程序  
+参考[X-LINUX-AI 入门包]([https://blog.csdn.net/xiaopang_love_study/article/details/121617995](https://wiki.st.com/stm32mpu/wiki/X-LINUX-AI_Starter_package))安装X-LINUX-AI软件包，其中包括了我们所需的opencv和tensorflow lite。  
 
 
 
