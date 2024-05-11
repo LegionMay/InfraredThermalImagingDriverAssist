@@ -22,7 +22,7 @@ ffmpeg -f v4l2 -s 240x320 -r 25 -vcodec mjpeg -i /dev/video1 -b:v 8000k -an -f a
 <img width="1280" alt="b8eccb8ee96b8c529203ed0382b348e" src="https://github.com/LegionMay/InfraredThermalImagingDriverAssist/assets/110379545/faec65d4-2e47-4bcd-a5f9-2a2573ada848">  
 
 ## 2 迈出第二步
-### 2.1 为开发板安装X-LINUX_AI软件包并编写测试程序  
+### 2.1 为开发板安装X-LINUX-AI软件包并编写测试程序  
 参考[X-LINUX-AI 入门包]([https://blog.csdn.net/xiaopang_love_study/article/details/121617995](https://wiki.st.com/stm32mpu/wiki/X-LINUX-AI_Starter_package))安装X-LINUX-AI软件包，其中包括了我们所需的opencv和tensorflow lite。  
 通过这段命令拍摄一段热成像画面进行测试（需要先安装ffmpeg）：  
 ```ffmpeg -f v4l2 -s 240x320 -r 25 -vcodec mjpeg -i /dev/video0 -b:v 8000k -an output.avi```  
