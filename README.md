@@ -33,6 +33,9 @@ ffmpeg -f v4l2 -s 240x320 -r 25 -vcodec mjpeg -i /dev/video1 -b:v 8000k -an -f a
 ### 2.2 编写基于OpenCV的测试程序  
 经过多次验证，我们找到了使用 V4L2 作为 OpenCV 的视频捕获后端，创建管道并启动 MPV 播放器来显示热成像画面的办法。注意这里需要使用 imencode 函数将帧编码为 JPEG 格式，将编码后的帧写入管道，否则画面可能显示异常。具体的C++程序与CMake已包含在test文件夹中。只需自行交叉编译成可执行文件即可。    
 然而，这个程序仅实现了基础的画面显示，而且延迟较大，仍需进一步改进。  
+实现效果如图：  
+![a988fb31a7bfd4b0a868d47b9814ec9](https://github.com/LegionMay/InfraredThermalImagingDriverAssist/assets/110379545/73b2b35f-daaa-4281-9eeb-fc27b8a425dd)
+
 
 
 
