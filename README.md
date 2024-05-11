@@ -22,13 +22,17 @@ ffmpeg -f v4l2 -s 240x320 -r 25 -vcodec mjpeg -i /dev/video1 -b:v 8000k -an -f a
 <img width="1280" alt="b8eccb8ee96b8c529203ed0382b348e" src="https://github.com/LegionMay/InfraredThermalImagingDriverAssist/assets/110379545/faec65d4-2e47-4bcd-a5f9-2a2573ada848">  
 
 ## 2 迈出第二步
-### 2.1 为开发板安装X-LINUX-AI软件包并编写测试程序  
+### 2.1 为开发板安装X-LINUX-AI软件包并测试热成像模块    
 参考[X-LINUX-AI 入门包](https://wiki.st.com/stm32mpu/wiki/X-LINUX-AI_Starter_package)安装X-LINUX-AI软件包，其中包括了我们所需的opencv和tensorflow lite。  
 通过这段命令拍摄一段热成像画面进行测试（需要先安装ffmpeg）：  
 ```ffmpeg -f v4l2 -s 240x320 -r 25 -vcodec mjpeg -i /dev/video0 -b:v 8000k -an output.avi```  
 安装mplayer```apt install mpv```,用它打开刚才拍摄的内容```mpv output.avi```  
 把它们结合起来，便实现了开发板实时采集热成像画面```ffmpeg -f v4l2 -s 320x240 -r 25 -vcodec mjpeg -i /dev/video0 -b:v 8000k -an -f avi pipe:1 | mpv -``` 
-可以用这个命令查看设备支持的格式```v4l2-ctl --list-formats-ext --device=/dev/video0```,用这个命令调整画面参数，如帧率、大小和方向```ffmpeg -f v4l2 -s 320x240 -r 25 -vcodec mjpeg -i /dev/video0 -vf "scale=640:480,transpose=1" -b:v 8000k -an -f avi pipe:1 | mpv -```    
+可以用这个命令查看设备支持的格式```v4l2-ctl --list-formats-ext --device=/dev/video0```,用这个命令调整画面参数，如帧率、大小和方向```ffmpeg -f v4l2 -s 320x240 -r 25 -vcodec mjpeg -i /dev/video0 -vf "scale=640:480,transpose=1" -b:v 8000k -an -f avi pipe:1 | mpv -```   
+
+### 2.2 编写基于OpenCV的测试程序  
+经过多次验证，我们找到了使用 V4L2 作为 OpenCV 的视频捕获后端，创建管道并启动 MPV 播放器来显示热成像画面的办法。注意这里需要使用 imencode 函数将帧编码为 JPEG 格式，将编码后的帧写入管道，否则画面可能显示异常。具体的C++程序与CMake已包含在test文件夹中。只需自行交叉编译成可执行文件即可。    
+然而，这个程序仅实现了基础的画面显示，而且延迟较大，仍需进一步改进。  
 
 
 
