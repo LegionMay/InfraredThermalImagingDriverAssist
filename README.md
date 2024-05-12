@@ -31,7 +31,7 @@ ffmpeg -f v4l2 -s 240x320 -r 25 -vcodec mjpeg -i /dev/video1 -b:v 8000k -an -f a
 可以用这个命令查看设备支持的格式```v4l2-ctl --list-formats-ext --device=/dev/video0```,用这个命令调整画面参数，如帧率、大小和方向```ffmpeg -f v4l2 -s 320x240 -r 25 -vcodec mjpeg -i /dev/video0 -vf "scale=640:480,transpose=1" -b:v 8000k -an -f avi pipe:1 | mpv -```   
 
 ### 2.2 编写基于OpenCV的测试程序  
-经过多次验证，我们使用 V4L2 作为 OpenCV 的视频捕获后端来显示热成像画面。具体的C++程序与CMake已包含在test文件夹中，只需自行交叉编译成可执行文件即可。可以使用以下命令进行编译:在项目根目录下创建一个构建目录```mkdir build && cd build``` 运行CMake来配置项目并生成构建系统```cmake ..``` 编译项目```make```  
+我们使用 V4L2 作为 OpenCV 的视频捕获后端来显示热成像画面。具体的C++程序与CMake已包含在test文件夹中，只需自行交叉编译成可执行文件即可。可以使用以下命令进行编译:在项目根目录下创建一个构建目录```mkdir build && cd build``` 运行CMake来配置项目并生成构建系统```cmake ..``` 编译项目```make```  
 然而，这个程序仅实现了基础的画面显示，而且延迟较大，仍需进一步改进。  
 实现效果如图：  
 ![a988fb31a7bfd4b0a868d47b9814ec9](https://github.com/LegionMay/InfraredThermalImagingDriverAssist/assets/110379545/73b2b35f-daaa-4281-9eeb-fc27b8a425dd)
