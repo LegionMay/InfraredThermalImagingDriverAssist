@@ -40,3 +40,6 @@ ffmpeg -f v4l2 -s 240x320 -r 25 -vcodec mjpeg -i /dev/video1 -b:v 8000k -an -f a
 首先参考[X-LINUX-AI_Developer_package](https://wiki.st.com/stm32mpu/wiki/X-LINUX-AI_Developer_package) 在PC上安装X-LINUX-AI开发包（包含我们所需的TensorFlow Lite库），安装成功后应当能在类似这个路径```~/Workspace/STM32MPU-Ecosystem-v5.0.2/Developer-Package/SDK/sysroots/cortexa7t2hf-neon-vfpv4-ostl-linux-gnueabi/usr/include/tensorflow/lite```下找到我们所需的头文件，然后就可以着手编写实现目标检测的程序啦。  
 我们使用了X-LINUX-AI包自带的```root@stm32mp1:/usr/local/demo-ai/computer-vision/models/coco_ssd_mobilenet#```路径下的目标检测模型```detect.tflite```进行测试，具体的CPP程序和CMakeLists文件包含在CV_Test路径下。  
 交叉编译并推送到开发板执行后，我们成功实现了对热成像采集画面进行目标检测。然而，画面帧率极低，检测精度也不够理想。把程序改为两个线程后，帧率有一些提升，但仍无法满足需求。改进后的CPP程序及其CMakeLists文件位于MainTest路径。下一步，我们需要优化程序并利用开源数据集[CTIR_Dataset](https://gitee.com/bjtu_dx/ctir-dataset)训练适合我们自己的TF Lite模型。  
+效果如图  ![Uploading 476c98716505c1f6fc781c66481836b.jpg…]()
+
+
