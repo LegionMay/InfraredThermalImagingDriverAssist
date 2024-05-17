@@ -1,7 +1,7 @@
 # InfraredThermalImagingDriverAssist  
 ## 前言  
-随着汽车行业的快速发展，驾驶安全已成为公众关注的焦点。据交通安全部门统计，低能见度环境下的交通事故率明显高于正常天气条件。传统的驾驶辅助系统依赖于可见光摄像头，但在雾天、夜间等低能见度环境下，往往难以准确识别道路障碍物，增加了交通事故的风险。为了解决这一问题，我们开发了一款基于STM32MP157F-DK2的红外热成像智能车载驾驶辅助系统，通过在该主控平台上部署Linux操作系统，结合可见光摄像头和红外热成像模块，并采用图像处理算法和嵌入式人工智能技术，实现在低能见度环境下对障碍物、人员、车辆的智能识别和碰撞预警，从而提高驾驶安全性。该系统能够有效解决低能见度环境下的驾驶安全问题，减少因视线不良导致的交通事故，提升夜间或恶劣天气条件下的驾驶体验，同时为智能驾驶辅助系统的发展带来了新的机遇。  
-## 1. 迈出第一步
+随着汽车行业的快速发展，驾驶安全已成为公众关注的焦点。据交通安全部门统计，低能见度环境下的交通事故率明显高于正常天气条件。传统的驾驶辅助系统依赖于可见光摄像头，但在雾天、夜间等低能见度环境下，往往难以准确识别道路障碍物，增加了交通事故的风险。为了解决这一问题，我们开发了一款基于STM32MP157F-DK2的红外热成像智能车载驾驶辅助系统，通过在该主控平台上部署Linux操作系统，结合可见光摄像头和红外热成像模块，并采用图像处理算法和嵌入式人工智能技术，实现在低能见度环境下对障碍物、人员、车辆的智能识别和碰撞预警，从而提高驾驶安全性。我们期望该系统能够有效解决低能见度环境下的驾驶安全问题，减少因视线不良导致的交通事故，提升夜间或恶劣天气条件下的驾驶体验，同时为智能驾驶辅助系统的发展带来新的机遇。  
+## 1. 整装待发
 ### 1.1 配置开发环境，点亮LCD  
 这里选择直接在Ubuntu上进行开发，为方便文件的传输，使用```sudo vmhgfs-fuse .host:/<共享文件夹名> /mnt/hgfs -o subtype=vmhgfs-fuse,allow_other```命令将一个共享文件夹挂载在Ubuntu的/mnt/hgfs目录。  
 开发环境的配置通常是一个繁琐的过程，这里参考了ST官方的教程 [STM32MP157x-DK2](https://wiki.stmicroelectronics.cn/stm32mpu/wiki/Getting_started/STM32MP1_boards/STM32MP157x-DK2/Develop_on_Arm%C2%AE_Cortex%C2%AE-A7 )，一步一步跟着来。 
@@ -21,7 +21,7 @@ ffmpeg -f v4l2 -s 240x320 -r 25 -vcodec mjpeg -i /dev/video1 -b:v 8000k -an -f a
 ``` 
 <img width="1280" alt="b8eccb8ee96b8c529203ed0382b348e" src="https://github.com/LegionMay/InfraredThermalImagingDriverAssist/assets/110379545/faec65d4-2e47-4bcd-a5f9-2a2573ada848">  
 
-## 2 迈出第二步
+## 2 初具雏形
 ### 2.1 为开发板安装X-LINUX-AI软件包并测试热成像模块    
 参考[X-LINUX-AI 入门包](https://wiki.st.com/stm32mpu/wiki/X-LINUX-AI_Starter_package)安装X-LINUX-AI软件包，其中包括了我们所需的opencv和tensorflow lite。  
 通过这段命令拍摄一段热成像画面进行测试（需要先安装ffmpeg）：  
@@ -36,6 +36,7 @@ ffmpeg -f v4l2 -s 240x320 -r 25 -vcodec mjpeg -i /dev/video1 -b:v 8000k -an -f a
 实现效果如图：  
 ![a988fb31a7bfd4b0a868d47b9814ec9](https://github.com/LegionMay/InfraredThermalImagingDriverAssist/assets/110379545/73b2b35f-daaa-4281-9eeb-fc27b8a425dd)
 
-
-
-
+### 2.3 引入X-LINUX_AI包的目标检测模型，初步实现目标检测功能  
+首先参考[X-LINUX-AI_Developer_package](https://wiki.st.com/stm32mpu/wiki/X-LINUX-AI_Developer_package) 在PC上安装X-LINUX-AI开发包，然后就可以着手编写实现目标检测的程序啦。  
+我们使用了X-LINUX-AI包自带的```root@stm32mp1:/usr/local/demo-ai/computer-vision/models/coco_ssd_mobilenet#```路径下的目标检测模型```detect.tflite```进行测试，具体的CPP程序和CMakeLists文件包含在CV_Test路径下。  
+交叉编译并推送到开发板执行后，我们成功实现了对热成像采集画面进行目标检测。然而，画面帧率极低，检测精度也不够理想。下一步，我们需要优化程序并利用开源数据集[CTIR_Dataset](https://gitee.com/bjtu_dx/ctir-dataset)训练适合我们自己的TF Lite模型。  
