@@ -45,7 +45,7 @@ ffmpeg -f v4l2 -s 240x320 -r 25 -vcodec mjpeg -i /dev/video1 -b:v 8000k -an -f a
 ![476c98716505c1f6fc781c66481836b](https://github.com/LegionMay/InfraredThermalImagingDriverAssist/assets/110379545/1e402bab-7e94-4f87-9ec9-513ed9e5e770)  
 ### 2.4 训练自己的目标检测模型  
 在Ubuntu系统中安装了Anaconda之后，可以按照以下步骤来安装训练TensorFlow Lite模型所需的工具：
-1. 打开终端：您可以通过快捷键Ctrl + Alt + T打开一个新的终端窗口。
+1. 打开终端：可以通过快捷键Ctrl + Alt + T打开一个新的终端窗口。
 2. 创建新的虚拟环境：使用Anaconda创建一个新的虚拟环境，这样可以避免与系统中其他项目的依赖冲突。可以使用以下命令：  
    ```conda create -n tflite_env python=3.9```  
    这里python=3.9是指定Python的版本，tflite_env是新虚拟环境的名称。  
