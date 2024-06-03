@@ -42,8 +42,27 @@ ffmpeg -f v4l2 -s 240x320 -r 25 -vcodec mjpeg -i /dev/video1 -b:v 8000k -an -f a
 我们使用了X-LINUX-AI包自带的```root@stm32mp1:/usr/local/demo-ai/computer-vision/models/coco_ssd_mobilenet#```路径下的目标检测模型```detect.tflite```进行测试，具体的CPP程序和CMakeLists文件包含在CV_Test路径下。  
 交叉编译并推送到开发板执行后，我们成功实现了对热成像采集画面进行目标检测。然而，画面帧率极低，检测精度也不够理想。把程序改为两个线程后，帧率有一些提升，但仍无法满足需求。改进后的CPP程序及其CMakeLists文件位于MainTest路径。下一步，我们需要优化程序并利用开源数据集[CTIR_Dataset](https://gitee.com/bjtu_dx/ctir-dataset)训练适合我们自己的TF Lite模型。  
 效果如图：  
-![476c98716505c1f6fc781c66481836b](https://github.com/LegionMay/InfraredThermalImagingDriverAssist/assets/110379545/1e402bab-7e94-4f87-9ec9-513ed9e5e770)
+![476c98716505c1f6fc781c66481836b](https://github.com/LegionMay/InfraredThermalImagingDriverAssist/assets/110379545/1e402bab-7e94-4f87-9ec9-513ed9e5e770)  
+### 2.4 训练自己的目标检测模型  
+在Ubuntu系统中安装了Anaconda之后，可以按照以下步骤来安装训练TensorFlow Lite模型所需的工具：
+1. 打开终端：您可以通过快捷键Ctrl + Alt + T打开一个新的终端窗口。
+2. 创建新的虚拟环境：使用Anaconda创建一个新的虚拟环境，这样可以避免与系统中其他项目的依赖冲突。可以使用以下命令：
+   ```conda create -n tflite_env python=3.9```
+   这里python=3.9是指定Python的版本，tflite_env是新虚拟环境的名称。  
+3.激活虚拟环境：创建虚拟环境后，使用以下命令来激活它：  
+```conda activate tflite_env```  
+4.安装TensorFlow Lite Model Maker：  
+在激活的虚拟环境中，使用pip来安装TensorFlow Lite Model Maker：  
+```pip install tflite-model-maker```  
+5.验证安装：安装完成后，可以通过运行以下命令来验证TensorFlow Lite Model Maker是否正确安装：
+```python -c "import tflite_model_maker"```
+如果没有错误信息输出，那么安装就成功了。  
+6.开始使用：现在可以开始使用TensorFlow Lite Model Maker来训练模型并将其转换为TensorFlow Lite格式了
+
+  这里参考[这篇博客](https://blog.csdn.net/jiugeshao/article/details/124235916)编写了我们自己的模型训练脚本(位于Dataset路径下)，把开源数据集[CTIR_Dataset](https://gitee.com/bjtu_dx/ctir-dataset)分成train、test和valide三部分进行训练，
 
 
+<img width="959" alt="52224db8d8fae946743add6ed805456" src="https://github.com/LegionMay/InfraredThermalImagingDriverAssist/assets/110379545/4f898e5f-252c-4640-afed-c94d2cc0215d">  
+如此训练数十个小时后，我们得到了自己的第一个tflite目标检测模型。  
 
 
