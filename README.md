@@ -46,8 +46,8 @@ ffmpeg -f v4l2 -s 240x320 -r 25 -vcodec mjpeg -i /dev/video1 -b:v 8000k -an -f a
 ### 2.4 训练自己的目标检测模型  
 在Ubuntu系统中安装了Anaconda之后，可以按照以下步骤来安装训练TensorFlow Lite模型所需的工具：
 1. 打开终端：您可以通过快捷键Ctrl + Alt + T打开一个新的终端窗口。
-2. 创建新的虚拟环境：使用Anaconda创建一个新的虚拟环境，这样可以避免与系统中其他项目的依赖冲突。可以使用以下命令：
-   ```conda create -n tflite_env python=3.9```
+2. 创建新的虚拟环境：使用Anaconda创建一个新的虚拟环境，这样可以避免与系统中其他项目的依赖冲突。可以使用以下命令：  
+   ```conda create -n tflite_env python=3.9```  
    这里python=3.9是指定Python的版本，tflite_env是新虚拟环境的名称。  
 3.激活虚拟环境：创建虚拟环境后，使用以下命令来激活它：  
 ```conda activate tflite_env```  
@@ -61,8 +61,9 @@ ffmpeg -f v4l2 -s 240x320 -r 25 -vcodec mjpeg -i /dev/video1 -b:v 8000k -an -f a
 
   这里参考[这篇博客](https://blog.csdn.net/jiugeshao/article/details/124235916)编写了我们自己的模型训练脚本(位于Dataset路径下)，把开源数据集[CTIR_Dataset](https://gitee.com/bjtu_dx/ctir-dataset)分成train、test和valide三部分进行训练，
 
+<img width="959" alt="52224db8d8fae946743add6ed805456" src="https://github.com/LegionMay/InfraredThermalImagingDriverAssist/assets/110379545/b5f43f2f-fe06-4e75-ad0a-26b333777112">
 
-<img width="959" alt="52224db8d8fae946743add6ed805456" src="https://github.com/LegionMay/InfraredThermalImagingDriverAssist/assets/110379545/4f898e5f-252c-4640-afed-c94d2cc0215d">  
+
 如此训练数十个小时后，我们得到了自己的第一个tflite目标检测模型。  
 
 
