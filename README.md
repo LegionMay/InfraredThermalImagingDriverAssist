@@ -66,4 +66,7 @@ ffmpeg -f v4l2 -s 240x320 -r 25 -vcodec mjpeg -i /dev/video1 -b:v 8000k -an -f a
 
 如此训练数十个小时后，我们得到了自己的第一个tflite目标检测模型。  
 
-
+## 3 加速前进
+### 3.1 启用GoogleEdgeTPU 
+令人遗憾的是，我们训练出的模型在推理速度和准确性上不如官方的模型，同时STM32MP157的性能似乎无法满足我们模型推理的帧率要求，因此我们决定启用GoogleEdgeTPU对模型的推理进行加速。  
+首先，在开发板上配置GoogleEdgeTPU 运行环境。参考(https://github.com/google-coral/edgetpu).  
