@@ -1,6 +1,6 @@
 # InfraredThermalImagingDriverAssist  
 ## 前言  
-随着汽车行业的快速发展，驾驶安全已成为公众关注的焦点。据交通安全部门统计，低能见度环境下的交通事故率明显高于正常天气条件。传统的驾驶辅助系统依赖于可见光摄像头，但在雾天、夜间等低能见度环境下，往往难以准确识别道路障碍物，增加了交通事故的风险。为了解决这一问题，我们开发了一款基于STM32MP157F-DK2的红外热成像智能车载驾驶辅助系统，通过在该主控平台上部署Linux操作系统，结合可见光摄像头和红外热成像模块，并采用图像处理算法和嵌入式人工智能技术，实现在低能见度环境下对障碍物、人员、车辆的智能识别和碰撞预警，从而提高驾驶安全性。我们期望该系统能够有效解决低能见度环境下的驾驶安全问题，减少因视线不良导致的交通事故，提升夜间或恶劣天气条件下的驾驶体验，同时为智能驾驶辅助系统的发展带来新的机遇。  
+随着汽车行业的快速发展，驾驶安全已成为公众关注的焦点。据交通安全部门统计，低能见度环境下的交通事故率明显高于正常天气条件。传统的驾驶辅助系统依赖于可见光摄像头，但在雾天、夜间等低能见度环境下，往往难以准确识别道路障碍物，增加了交通事故的风险。为了解决这一问题，我们开发了一款基于STM32MP157F-DK2的红外热融合智能车载驾驶辅助系统，通过在该主控平台上部署Linux操作系统，结合可见光/近红外摄像头和红外热成像模块，并采用图像处理算法和嵌入式人工智能技术，实现在低能见度环境下对障碍物、人员、车辆的智能识别和碰撞预警，从而提高驾驶安全性。我们期望该系统能够有效解决低能见度环境下的驾驶安全问题，减少因视线不良导致的交通事故，提升夜间或恶劣天气条件下的驾驶体验，同时为智能驾驶辅助系统的发展带来新的机遇。  
 ## 1. 整装待发
 ### 1.1 配置开发环境，点亮LCD  
 这里选择直接在Ubuntu上进行开发，为方便文件的传输，使用```sudo vmhgfs-fuse .host:/<共享文件夹名> /mnt/hgfs -o subtype=vmhgfs-fuse,allow_other```命令将一个共享文件夹挂载在Ubuntu的/mnt/hgfs目录。  
@@ -68,5 +68,49 @@ ffmpeg -f v4l2 -s 240x320 -r 25 -vcodec mjpeg -i /dev/video1 -b:v 8000k -an -f a
 
 ## 3 加速前进
 ### 3.1 启用GoogleEdgeTPU 
-令人遗憾的是，我们训练出的模型在推理速度和准确性上不如官方的模型，同时STM32MP157的性能似乎无法满足我们模型推理的帧率要求，因此我们决定启用GoogleEdgeTPU对模型的推理进行加速。  
-首先，在开发板上配置GoogleEdgeTPU 运行环境。参考(https://github.com/google-coral/edgetpu).  
+令人遗憾的是，STM32MP157的性能似乎无法满足我们模型推理的帧率要求，因此我们决定启用GoogleEdgeTPU对模型的推理进行加速。  
+首先，在开发板上配置GoogleEdgeTPU 运行环境。参考(https://github.com/google-coral/edgetpu).  在开发环境上同样安装libedgetpu。
+注意某些版本的tflite(>2.11)与libedgetpu版本可能不适配，程序执行时会在创建解释器时崩溃。我们这里使用的是v5.0.0版本的X-LINUX-AI包与libedgetpu.2.0。  
+要使用EdgeTPU加速推理，还要使用EdgeTPUComplier把tflite模型转换为edgetpu支持的格式。  
+这里调用edgetpu的api进行推理的相关代码段如下：  
+```cpp
+// 加载模型
+    model = tflite::FlatBufferModel::BuildFromFile("/home/root/usr/NewTPU/Models/Mydetect_edgetpu.tflite");
+    if (!model) {
+        cerr << "加载模型失败!" << endl;
+        return -1;
+    }
+
+    // 创建Edge TPU上下文
+    edgetpu_context = edgetpu::EdgeTpuManager::GetSingleton()->OpenDevice(edgetpu::DeviceType::kApexUsb);
+    if (!edgetpu_context) {
+        cerr << "打开Edge TPU设备失败!" << endl;
+        return -1;
+    }
+
+    // 创建解释器
+    tflite::ops::builtin::BuiltinOpResolver resolver;
+    resolver.AddCustom(edgetpu::kCustomOp, edgetpu::RegisterCustomOp());
+    if (tflite::InterpreterBuilder(*model, resolver)(&interpreter) != kTfLiteOk) {
+        cerr << "构建解释器失败!" << endl;
+        return -1;
+    }
+    interpreter->SetExternalContext(kTfLiteEdgeTpuContext, edgetpu_context.get());
+    interpreter->SetNumThreads(4);
+    if (interpreter->AllocateTensors() != kTfLiteOk) {
+        cerr << "分配张量失败!" << endl;
+        return -1;
+    }
+
+    // 加载标签
+    ifstream label_file("/usr/local/demo-ai/computer-vision/models/coco_ssd_mobilenet/labels.txt");
+    string line;
+    while (getline(label_file, line)) {
+        labels.push_back(line);
+    }
+```
+### 3.2 使用RK3588加速推理（可选）  
+如果你不喜欢EdgeTPU，可以选择使用RK3588加速推理，甚至直接改用RK3588.   
+对于RKNN环境的配置和RKNN模型的转换，这里不做赘述，仅提供可以参考的python程序（RK3588路径下）。  
+我们使用Socket与RK3588建立TCP连接，分块收发视频流，即可实现把AI推理过程转移到RK3588上。  
+### 3.3 增加热融合显示功能  
