@@ -67,7 +67,7 @@ ffmpeg -f v4l2 -s 240x320 -r 25 -vcodec mjpeg -i /dev/video1 -b:v 8000k -an -f a
 如此训练数十个小时后，我们得到了自己的第一个tflite目标检测模型。  
 
 ## 3 加速前进
-### 3.1 启用GoogleEdgeTPU 
+### 3.1 GoogleEdgeTPU加速AI推理 
 令人遗憾的是，STM32MP157的性能似乎无法满足我们模型推理的帧率要求，因此我们决定启用GoogleEdgeTPU对模型的推理进行加速。  
 首先，在开发板上配置GoogleEdgeTPU 运行环境。参考(https://github.com/google-coral/edgetpu).  在开发环境上同样安装libedgetpu。
 注意某些版本的tflite(>2.11)与libedgetpu版本可能不适配，程序执行时会在创建解释器时崩溃。我们这里使用的是v5.0.0版本的X-LINUX-AI包与libedgetpu.2.0。  
@@ -113,4 +113,143 @@ ffmpeg -f v4l2 -s 240x320 -r 25 -vcodec mjpeg -i /dev/video1 -b:v 8000k -an -f a
 如果你不喜欢EdgeTPU，可以选择使用RK3588加速推理，甚至直接改用RK3588.   
 对于RKNN环境的配置和RKNN模型的转换，这里不做赘述，仅提供可以参考的python程序（RK3588路径下）。  
 我们使用Socket与RK3588建立TCP连接，分块收发视频流，即可实现把AI推理过程转移到RK3588上。  
-### 3.3 增加热融合显示功能  
+### 3.3 热融合显示功能  
+热融合显示部分是同时捕获热成像画面和近红外（可见光）画面，利用OpenCV提供的图像加权融合函数实现的，具体代码如下：  
+```cpp
+if (!frame2.empty() && !frame0.empty()) {
+                rotate(frame2, frame2, ROTATE_90_CLOCKWISE);
+                processed_frame = frame2.clone();
+                Mat frame0_processed = frame0.clone();
+                for (int i = 0; i < frame0_processed.rows; ++i) {
+                    for (int j = 0; j < frame0_processed.cols; ++j) {
+                        Vec3b& pixel = frame0_processed.at<Vec3b>(i, j);
+                        if (pixel[0] > 240 && pixel[1] > 240 && pixel[2] > 240) {  // 白色部分
+                            pixel = Vec3b(0, 255, 255);  // 变为黄色
+                        }
+                    }
+                }
+
+                // 定义裁剪区域 (x, y, width, height)
+                Rect crop_region(40, 45, 240, 180);
+                // 裁剪图像
+                frame0_processed = frame0_processed(crop_region);
+
+                // 确保 frame0_processed 和 frame2 尺寸一致
+                if (frame0_processed.size() != frame2.size()) {
+                    resize(frame0_processed, frame0_processed, frame2.size());
+                }
+
+                if (!frame2.empty()) {
+                    addWeighted(frame2, 0.8, frame0_processed, 0.2, 0, frame2);
+                    processed_frame = frame2.clone();
+                }
+
+                for (const auto& detections : detection_history) {
+                    drawDetections(frame2, detections);
+                }
+            }
+```
+### 3.4 GUI界面的绘制和触屏操作的处理  
+GUI界面的绘制是利用OpenCV的绘图函数实现的，部分代码如下：  
+```cpp
+// 绘制按钮
+void drawButton(Mat& frame, const Rect& rect, const string& text, Scalar color = Scalar(100, 100, 100), int thickness = 2) {
+    rectangle(frame, rect, color, FILLED, LINE_AA);
+    rectangle(frame, rect, Scalar(255, 255, 255), thickness, LINE_AA);
+    putText(frame, text, rect.tl() + Point(10, 30), FONT_HERSHEY_SIMPLEX, 1, Scalar(255, 255, 255), 2);
+}
+
+// 绘制滑块
+void drawSlider(Mat& frame, const Rect& rect, const string& text, int value, Scalar color = Scalar(100, 100, 100), int thickness = 2) {
+    rectangle(frame, rect, color, FILLED, LINE_AA);
+    rectangle(frame, rect, Scalar(255, 255, 255), thickness, LINE_AA);
+    putText(frame, text, rect.tl() + Point(10, 30), FONT_HERSHEY_SIMPLEX, 1, Scalar(255, 255, 255), 2);
+    int slider_position = rect.x + value * rect.width / 100;
+    line(frame, Point(slider_position, rect.y), Point(slider_position, rect.y + rect.height), Scalar(0, 0, 255), 2, LINE_AA);
+}
+
+// 绘制开关
+void drawToggle(Mat& frame, const Rect& rect, const string& text, Scalar color = Scalar(100, 100, 100), int thickness = 2) {
+    rectangle(frame, rect, color, FILLED, LINE_AA);
+    rectangle(frame, rect, Scalar(255, 255, 255), thickness, LINE_AA);
+    putText(frame, text, rect.tl() + Point(10, 30), FONT_HERSHEY_SIMPLEX, 1, Scalar(255, 255, 255), 2);
+}
+```
+而触屏操作是通过OpenCV的鼠标点击回调函数实现的，相关代码如下：  
+```cpp
+// 鼠标点击回调函数
+void onMouse(int event, int x, int y, int, void*) {
+    if (event == EVENT_LBUTTONDOWN) {
+        if (!settings_page) {
+            if (switch_button_rect.contains(Point(x, y))) {
+                button_pressed = true;
+            } else if (settings_button_rect.contains(Point(x, y))) {
+                settings_page = true;
+            } else if (exit_button_rect.contains(Point(x, y))) {
+                running = false;
+            }
+        } else {
+            if (back_button_rect.contains(Point(x, y))) {
+                settings_page = false;
+            } else if (slider1_rect.contains(Point(x, y))) {
+                slider1_value = (x - slider1_rect.x) * 100 / slider1_rect.width;
+                detection_threshold = slider1_value / 100.0f;
+            } else if (slider2_rect.contains(Point(x, y))) {
+                slider2_value = (x - slider2_rect.x) * 100 / slider2_rect.width;
+            }
+            if (toggle1_rect.contains(Point(x, y))) {
+                alarm_on = !alarm_on; // 切换报警开关状态
+            }
+            if (toggle2_rect.contains(Point(x, y))) {
+                tcp_start = !tcp_start; // 切换开关状态
+                if (tcp_start) {
+                    tryTcpConnection();
+                } else {
+                    if (client_sock != -1) {
+                        close(client_sock);
+                        client_sock = -1;
+                    }
+                    tcp_success = false;
+                }
+            }
+        }
+    } else if (event == EVENT_LBUTTONUP) {
+        if (!settings_page && switch_button_rect.contains(Point(x, y)) && button_pressed) {
+            display_video0 = !display_video0;
+            button_pressed = false;
+        }
+    }
+}
+```
+### 3.5 TCP通信  
+为了与车机建立高速而稳定的通信，我们利用Socket编程实现TCP网络通信，部分相关代码如下：  
+```cpp
+// 尝试建立TCP连接
+void tryTcpConnection() {
+    if (client_sock != -1) {
+        close(client_sock);
+    }
+
+    client_sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (client_sock == -1) {
+        cerr << "创建套接字失败!" << endl;
+        tcp_success = false;
+        return;
+    }
+
+    struct sockaddr_in server_addr;
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(5555);
+    server_addr.sin_addr.s_addr = inet_addr("192.168.5.8");
+
+    if (connect(client_sock, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+        cerr << "连接服务器失败！" << endl;
+        close(client_sock);
+        client_sock = -1;
+        tcp_success = false;
+        return;
+    }
+
+    tcp_success = true;
+}
+```
