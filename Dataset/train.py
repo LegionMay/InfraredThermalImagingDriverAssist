@@ -49,8 +49,8 @@ def train():
     validata = object_detector.DataLoader.from_pascal_voc(valide_imgs_dir, valide_Anno_dir, labels)
     testdata = object_detector.DataLoader.from_pascal_voc(test_imgs_dir, test_Anno_dir, labels)
 
-    # 使用 EfficientDet 模型规格
-    spec = model_spec.get('efficientdet_lite0')
+    # 模型规格
+    spec = model_spec.get('ssd_mobilenet_v2')
     # 设置模型规格的 URI 和输入图片尺寸
     spec.input_image_shape = [320, 240]
 
